@@ -17,6 +17,8 @@
 package io.karma.skroll
 
 import co.touchlab.stately.collections.SharedHashMap
+import io.karma.pthread.Mutex
+import io.karma.pthread.guarded
 import kotlinx.io.Sink
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
@@ -35,12 +37,18 @@ internal class ConsoleAppender( // @formatter:off
     override val formatter: LogFormatter,
     private val filter: LogFilter
 ) : LogAppender { // @formatter:on
+    private val mutex: Mutex = Mutex.create()
+
     override fun append(level: LogLevel, message: String, marker: LogMarker?) {
         if (!filter(level, message, marker)) return
-        println(message)
+        mutex.guarded {
+            println(message)
+        }
     }
 
-    override fun close() {}
+    override fun close() {
+        mutex.close()
+    }
 }
 
 private data class RefCountedSink(
@@ -80,10 +88,14 @@ internal class FileAppender( // @formatter:off
         RefCountedSink(SystemFileSystem.sink(path).buffered())
     }.acquire().sink
 
+    private val mutex: Mutex = Mutex.create()
+
     override fun append(level: LogLevel, message: String, marker: LogMarker?) {
         if (!filter(level, message, marker)) return
         // Make sure to strip out any ANSI codes when writing to file
-        sink.writeString("${message.toAnsi().cleanString()}\n")
+        mutex.guarded {
+            sink.writeString("${message.toAnsi().cleanString()}\n")
+        }
     }
 
     override fun close() {
@@ -91,5 +103,6 @@ internal class FileAppender( // @formatter:off
         ref.release {
             sinks -= path
         }
+        mutex.close()
     }
 }
