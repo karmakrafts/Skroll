@@ -37,6 +37,7 @@ internal class ConsoleAppender( // @formatter:off
     override val formatter: LogFormatter,
     private val filter: LogFilter
 ) : LogAppender { // @formatter:on
+    private var isClosed: Boolean = false
     private val mutex: Mutex = Mutex.create()
 
     override fun append(level: LogLevel, message: String, marker: LogMarker?) {
@@ -47,7 +48,9 @@ internal class ConsoleAppender( // @formatter:off
     }
 
     override fun close() {
+        if (isClosed) return
         mutex.close()
+        isClosed = true
     }
 }
 
@@ -88,6 +91,7 @@ internal class FileAppender( // @formatter:off
         RefCountedSink(SystemFileSystem.sink(path).buffered())
     }.acquire().sink
 
+    private var isClosed: Boolean = false
     private val mutex: Mutex = Mutex.create()
 
     override fun append(level: LogLevel, message: String, marker: LogMarker?) {
@@ -99,10 +103,12 @@ internal class FileAppender( // @formatter:off
     }
 
     override fun close() {
+        if (isClosed) return
         val ref = sinks[path] ?: return
         ref.release {
             sinks -= path
         }
         mutex.close()
+        isClosed = true
     }
 }
