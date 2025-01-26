@@ -18,12 +18,9 @@
 
 package io.karma.skroll
 
-import co.touchlab.stately.collections.SharedLinkedList
 import kotlinx.atomicfu.atomic
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.staticCFunction
 import kotlinx.io.files.Path
-import platform.posix.atexit
 import kotlin.reflect.KClass
 
 /**
@@ -35,27 +32,6 @@ sealed interface Logger {
     companion object {
         @PublishedApi
         internal var defaultConfig: LoggerConfig = LoggerConfig()
-
-        @PublishedApi
-        internal val loggers: SharedLinkedList<Logger> = SharedLinkedList()
-
-        init {
-            // @formatter:off
-            atexit(staticCFunction<Unit> { Logger.cleanup() })
-            // @formatter:on
-        }
-
-        private fun cleanup() {
-            for (logger in loggers) {
-                for (appender in logger.config.appenders) {
-                    appender.close() // Make sure all streams/handles are closed
-                }
-            }
-            for (appender in defaultConfig.appenders) {
-                appender.close() // Make sure all streams/handles for default config are closed
-            }
-            loggers.clear()
-        }
 
         @PublishedApi
         internal fun LoggerConfigBuilder.buildDefaultConfig() {
@@ -81,7 +57,6 @@ sealed interface Logger {
          * @param config The configuration spec applied to every newly created logger instance. See [LoggerConfigBuilder].
          */
         inline fun setDefaultConfig(config: LoggerConfigSpec = { buildDefaultConfig() }) {
-            defaultConfig.appenders.forEach { it.close() } // Make sure old appenders are closed when we update this config
             defaultConfig = LoggerConfigBuilder().apply(config).build()
         }
 
@@ -93,9 +68,7 @@ sealed interface Logger {
          * @return A new logger instance with the given name.
          */
         inline fun create(name: String, config: LoggerConfigSpec = {}): Logger {
-            return SimpleLogger(name, LoggerConfigBuilder().setFrom(defaultConfig).apply(config).build()).apply {
-                loggers += this
-            }
+            return SimpleLogger(name, LoggerConfigBuilder().setFrom(defaultConfig).apply(config).build())
         }
 
         /**

@@ -17,15 +17,37 @@
 package io.karma.skroll
 
 import co.touchlab.stately.collections.SharedHashMap
+import co.touchlab.stately.collections.SharedSet
 import io.karma.pthread.Mutex
 import io.karma.pthread.guarded
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.staticCFunction
 import kotlinx.io.Sink
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import kotlinx.io.writeString
+import platform.posix.atexit
 
 interface LogAppender : AutoCloseable {
+    @OptIn(ExperimentalForeignApi::class)
+    companion object {
+        @PublishedApi
+        internal var appenders: SharedSet<LogAppender> = SharedSet()
+
+        init {
+            atexit(staticCFunction<Unit> { // @formatter:off
+                LogAppender.cleanup()
+            }) // @formatter:on
+        }
+
+        private fun cleanup() {
+            for (appender in appenders) {
+                appender.close()
+            }
+        }
+    }
+
     val formatter: LogFormatter
     val pattern: String
     fun append(level: LogLevel, message: String, marker: LogMarker?)
@@ -37,6 +59,10 @@ internal class ConsoleAppender( // @formatter:off
     override val formatter: LogFormatter,
     private val filter: LogFilter
 ) : LogAppender { // @formatter:on
+    init {
+        LogAppender.appenders += this
+    }
+
     private var isClosed: Boolean = false
     private val mutex: Mutex = Mutex.create()
 
@@ -85,6 +111,10 @@ internal class FileAppender( // @formatter:off
 ) : LogAppender { // @formatter:on
     companion object {
         private val sinks: SharedHashMap<Path, RefCountedSink> = SharedHashMap()
+    }
+
+    init {
+        LogAppender.appenders += this
     }
 
     private val sink: Sink = sinks.getOrPut(path) {
