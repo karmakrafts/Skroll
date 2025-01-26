@@ -41,7 +41,7 @@ sealed interface Logger {
             fileAppender(
                 pattern = "[{{level}}][{{datetime(yyyy/MM/dd hh:mm:ss.SSS)}}] ({{name}} @ {{thread}}) {{message}}",
                 path = Path("latest.log"),
-                filter = LogFilter.levelsExcept(LogLevel.DEBUG)
+                filter = LogFilter.levelsExcept(LogLevel.DEBUG, LogLevel.TRACE)
             )
             fileAppender(
                 pattern = "[{{level}}][{{datetime(yyyy/MM/dd hh:mm:ss.SSS)}}] ({{name}} @ {{thread}}) {{message}}",
@@ -139,6 +139,17 @@ sealed interface Logger {
     fun log(marker: LogMarker?, level: LogLevel, message: AnsiScope.() -> Any)
 
     /**
+     * Log a message at the [LogLevel.TRACE] level if enabled.
+     * Semantically equal to
+     * ```kotlin
+     * Logger.log(LogLevel.TRACE, message)
+     * ```
+     *
+     * @param message An ANSI-string closure which returns any object whose [toString] function will be invoked.
+     */
+    fun trace(message: AnsiScope.() -> Any) = log(LogLevel.TRACE, message)
+
+    /**
      * Log a message at the [LogLevel.DEBUG] level if enabled.
      * Semantically equal to
      * ```kotlin
@@ -192,6 +203,18 @@ sealed interface Logger {
      * @param message An ANSI-string closure which returns any object whose [toString] function will be invoked.
      */
     fun fatal(message: AnsiScope.() -> Any) = log(LogLevel.FATAL, message)
+
+    /**
+     * Log a message at the [LogLevel.TRACE] level and with the given marker if both are enabled.
+     * Semantically equal to
+     * ```kotlin
+     * Logger.log(marker, LogLevel.TRACE, message)
+     * ```
+     *
+     * @param marker The marker with which to tag the logged message if not null.
+     * @param message An ANSI-string closure which returns any object whose [toString] function will be invoked.
+     */
+    fun trace(marker: LogMarker?, message: AnsiScope.() -> Any) = log(marker, LogLevel.TRACE, message)
 
     /**
      * Log a message at the [LogLevel.DEBUG] level and with the given marker if both are enabled.

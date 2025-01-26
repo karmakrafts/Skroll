@@ -29,6 +29,7 @@ enum class LogLevel( // @formatter:off
     val ansi: AnsiSequence
 ) { // @formatter:on
     // @formatter:off
+    TRACE("\uD83D\uDD0E", AnsiBg.default..AnsiFg.hiPurple),
     DEBUG("\uD83E\uDEB2", AnsiBg.default..AnsiFg.hiGreen),
     INFO ("\uD83D\uDCDC", AnsiBg.default..AnsiFg.default),
     WARN ("\u26A0\uFE0F", AnsiBg.default..AnsiFg.hiYellow),
