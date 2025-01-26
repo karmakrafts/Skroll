@@ -39,6 +39,7 @@ kotlin {
                 api(libs.kotlinx.io.core)
                 api(libs.kotlinx.io.bytestring)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.atomicfu)
                 implementation(libs.multiplatform.pthread)
                 implementation(libs.stately.common)
                 implementation(libs.stately.collections)
@@ -47,16 +48,24 @@ kotlin {
     }
 }
 
+dokka {
+    moduleName = project.name
+    pluginsConfiguration {
+        html {
+            footerMessage = "(c) 2025 Karma Krafts & associates"
+        }
+    }
+}
+
 val dokkaJar by tasks.registering(Jar::class) {
     dependsOn(tasks.dokkaGeneratePublicationHtml)
     from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
-    archiveClassifier = "javadoc"
+    archiveClassifier.set("javadoc")
 }
 
 tasks {
     System.getProperty("publishDocs.root")?.let { docsDir ->
-        register<Copy>("publishDocs") {
-            dependsOn(dokkaJar)
+        register("publishDocs", Copy::class) {
             mustRunAfter(dokkaJar)
             from(zipTree(dokkaJar.get().outputs.files.first()))
             into(docsDir)
