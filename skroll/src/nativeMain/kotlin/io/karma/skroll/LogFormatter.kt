@@ -29,6 +29,10 @@ import kotlinx.datetime.format.char
 
 private typealias DateTimeElement = Pair<String, DateTimeFormatBuilder.WithDateTimeComponents.() -> Unit>
 
+/**
+ * A function which represents a transformation applied for a given template variable
+ * in the log pattern.
+ */
 @Suppress("NOTHING_TO_INLINE")
 fun interface LogPatternElement {
     companion object {
@@ -103,6 +107,7 @@ fun interface LogPatternElement {
                 .replaceTemplate("marker", marker?.name ?: "n/a")
                 .replaceTemplate("message", content.toString())
                 .replaceTemplate("thread", Thread.name)
+                .replaceTemplate("threadId", Thread.id.toString())
                 .replaceTemplate("level", paddedLevelNames[level.ordinal])
                 .replaceTemplate("levelSymbol", level.symbol)
                 .replaceTemplate("name", logger.name)
@@ -110,6 +115,17 @@ fun interface LogPatternElement {
         }
     }
 
+    /**
+     * Transforms the given string and replaces all occurrences
+     * of the template variable associated with this format element.
+     *
+     * @param logger The logger instance associated with this format element.
+     * @param level The level at which the message will be logged.
+     * @param content The raw content of the message.
+     * @param marker The log marker the message being formatted is tagged with.
+     * @param s The string being transformed.
+     * @return The transformed string or the original string if no template variable was replaced.
+     */
     operator fun invoke( // @formatter:off
         logger: Logger,
         level: LogLevel,
@@ -118,16 +134,43 @@ fun interface LogPatternElement {
         s: String
     ): String // @formatter:on
 
+    /**
+     * Concatenates this format element with another to form a new [LogFormatter] instance.
+     *
+     * @param other The element with which to join this element to form a new formatter instance.
+     * @return A new [LogFormatter] instance containing both this and the other format element.
+     */
     operator fun plus(other: LogPatternElement): LogFormatter = LogFormatter { logger, level, content, marker, s ->
         other(logger, level, content, marker, this(logger, level, content, marker, s))
     }
+
+    /**
+     * Creates a new log formatter from this format element.
+     *
+     * @return A new [LogFormatter] instance containing only this format element.
+     */
+    fun asFormatter(): LogFormatter = LogFormatter(this)
 }
 
 value class LogFormatter @PublishedApi internal constructor(@PublishedApi internal val rootElement: LogPatternElement) {
     companion object {
+        /**
+         * The default formatter which provides all basic format elements like {{name}} and {{thread}}.
+         */
         val default: LogFormatter = LogFormatter(LogPatternElement.rootElement)
     }
 
+    /**
+     * Transforms the given string and replaces all occurrences
+     * of the template variables associated with this formatter instance.
+     *
+     * @param logger The logger instance associated with this formatter.
+     * @param level The level at which the message will be logged.
+     * @param content The raw content of the message.
+     * @param marker The log marker the message being formatted is tagged with.
+     * @param s The string being transformed.
+     * @return The transformed (formatted) message.
+     */
     inline fun transform( // @formatter:off
         logger: Logger,
         level: LogLevel,
@@ -138,7 +181,23 @@ value class LogFormatter @PublishedApi internal constructor(@PublishedApi intern
         return rootElement(logger, level, content, marker, s)
     }
 
+    /**
+     * Concatenates this formatter with another format element to form a new [LogFormatter] instance.
+     *
+     * @param other The element with which to join this formatter to form a new formatter instance.
+     * @return A new [LogFormatter] instance containing both these formatters elements and the other format element.
+     */
     operator fun plus(other: LogPatternElement): LogFormatter = LogFormatter { logger, level, content, marker, s ->
         other(logger, level, content, marker, rootElement(logger, level, content, marker, s))
+    }
+
+    /**
+     * Concatenates this formatter with another formatter to form a new [LogFormatter] instance.
+     *
+     * @param other The formatter with which to join this formatter to form a new formatter instance.
+     * @return A new [LogFormatter] instance containing both these formatters elements and the other formatters elements.
+     */
+    operator fun plus(other: LogFormatter): LogFormatter = LogFormatter { logger, level, content, marker, s ->
+        other.transform(logger, level, content, marker, rootElement(logger, level, content, marker, s))
     }
 }
