@@ -22,17 +22,30 @@ package io.karma.skroll
  * See https://en.wikipedia.org/wiki/ANSI_escape_code
  */
 
+/**
+ * Represents one or more ANSI escape codes.
+ */
 value class AnsiSequence @PublishedApi internal constructor(@PublishedApi internal val value: String) {
     companion object {
         const val ESC: Char = '\u001b'
         val reset: AnsiSequence = AnsiSequence("$ESC[0m")
     }
 
+    /**
+     * Concatenate this ANSI sequence with the given sequence.
+     *
+     * @param other The sequence to concatenate this sequence with.
+     * @return A new ANSI sequence containing all data from this sequence followed
+     *  by the data of the other sequence.
+     */
     inline operator fun plus(other: AnsiSequence): AnsiSequence = AnsiSequence("$value$other")
 
     override fun toString(): String = value
 }
 
+/**
+ * A list of all available ANSI foreground colors which may be used in conjunction with a regular terminal.
+ */
 value class AnsiFg @PublishedApi internal constructor(@PublishedApi internal val value: Int) {
     companion object {
         // @formatter:off
@@ -61,6 +74,9 @@ value class AnsiFg @PublishedApi internal constructor(@PublishedApi internal val
     override fun toString(): String = value.toString()
 }
 
+/**
+ * A list of all available ANSI background colors which may be used in conjunction with a regular terminal.
+ */
 value class AnsiBg @PublishedApi internal constructor(@PublishedApi internal val value: Int) {
     companion object {
         // @formatter:off
@@ -86,15 +102,32 @@ value class AnsiBg @PublishedApi internal constructor(@PublishedApi internal val
         // @formatter:on
     }
 
+    /**
+     * Creates an ANSI sequence where this color will be used
+     * as the background and the right hand side color will be the foreground.
+     *
+     * @param color The foreground color to be used on this background.
+     * @return A new ANSI sequence containing both colors.
+     */
     inline operator fun rangeTo(color: AnsiFg): AnsiSequence =
         AnsiSequence("${AnsiMod.default(this)}${AnsiMod.default(color)}")
 
+    /**
+     * Creates an ANSI sequence where this color will be used
+     * as the background and the right hand side color will be the foreground and bold.
+     *
+     * @param color The foreground color to be used on this background.
+     * @return A new ANSI sequence containing both colors.
+     */
     inline operator fun rangeUntil(color: AnsiFg): AnsiSequence =
         AnsiSequence("${AnsiMod.default(this)}${AnsiMod.bold(color)}")
 
     override fun toString(): String = value.toString()
 }
 
+/**
+ * A list of all commonly available ANSI modifiers.
+ */
 value class AnsiMod @PublishedApi internal constructor(@PublishedApi internal val value: Int) {
     companion object { // @formatter:off
         val default: AnsiMod    = AnsiMod(0)
@@ -107,8 +140,20 @@ value class AnsiMod @PublishedApi internal constructor(@PublishedApi internal va
         val invert: AnsiMod     = AnsiMod(7)
     } // @formatter:on
 
+    /**
+     * Turn the given foreground colors into a new [AnsiSequence] using this modifier.
+     *
+     * @param color The foreground color to join with this modifier.
+     * @return A new ANSI sequence containing a new escape code for this modifier and the given color.
+     */
     inline operator fun invoke(color: AnsiFg): AnsiSequence = AnsiSequence("${AnsiSequence.ESC}[$value;${color}m")
 
+    /**
+     * Turn the given background colors into a new [AnsiSequence] using this modifier.
+     *
+     * @param color The background color to join with this modifier.
+     * @return A new ANSI sequence containing a new escape code for this modifier and the given color.
+     */
     inline operator fun invoke(color: AnsiBg): AnsiSequence = AnsiSequence("${AnsiSequence.ESC}[$value;${color}m")
 
     override fun toString(): String = value.toString()
@@ -119,39 +164,74 @@ value class AnsiString @PublishedApi internal constructor(@PublishedApi internal
         private val pattern: Regex = Regex("""${AnsiSequence.ESC}\[[\w;]+?[ABCDEFGHIJKLm]""")
     }
 
+    /**
+     * Strips all ANSI escape codes from this ANSI string
+     * using a RegEx pattern and returns the stripped string value.
+     *
+     * @return The raw string value of this ANSI string without any escape codes.
+     */
     fun cleanString(): String = value.replace(pattern, "")
 
+    /**
+     * Concatenate the value of this ANSI string with the given string
+     * and returns the result as a new [AnsiString].
+     *
+     * @param s The string to append to this ANSI string.
+     * @return A new [AnsiString] which contains the data of this ANSI string followed by the given string.
+     */
     inline operator fun plus(s: String): AnsiString = AnsiString("$value$s")
 
+    /**
+     * Concatenate the value of this ANSI string with the given ANSI string
+     * and returns the result as a new [AnsiString].
+     *
+     * @param s The ANSI string to append to this ANSI string.
+     * @return A new [AnsiString] which contains the data of this ANSI string followed by the given ANSI string.
+     */
     inline operator fun plus(s: AnsiString): AnsiString = AnsiString("$value$s")
 
+    /**
+     * Insert the given ANSI sequence before this ANSI string and return
+     * the newly created [AnsiString].
+     *
+     * @param sequence The ANSI sequence to insert before this ANSI string.
+     * @return A new [AnsiString] containing the given sequence followed by the data of this ANSI string.
+     */
     inline infix fun with(sequence: AnsiSequence): AnsiString = AnsiString("$sequence$value")
 
-    inline infix fun withBg(color: AnsiBg): AnsiString = AnsiString("${AnsiMod.default(color)}$value")
-
-    inline infix fun withFg(color: AnsiFg): AnsiString = AnsiString("${AnsiMod.default(color)}$value")
-
-    inline infix fun withBoldFg(color: AnsiFg): AnsiString = AnsiString("${AnsiMod.bold(color)}$value")
-
-    inline infix fun withItalicFg(color: AnsiFg): AnsiString = AnsiString("${AnsiMod.bold(color)}$value")
-
+    /**
+     * Insert a reset ANSI escape code after this ANSI string and return
+     * the newly created ANSI string.
+     *
+     * @return A new ANSI string containing the data of this ANSI string followed by a reset escape code.
+     */
     inline fun reset(): AnsiString = AnsiString("$value${AnsiSequence.reset}")
 
     override fun toString(): String = value
 }
 
+/**
+ * Convert this string into an ANSI string.
+ *
+ * @return A new [AnsiString] instance containing the data of this string.
+ */
 inline fun String.toAnsi(): AnsiString = AnsiString(this)
 
 object AnsiScope {
+    /**
+     * Insert the given ANSI sequence before this string and return
+     * the newly created [AnsiString].
+     *
+     * @param sequence The ANSI sequence to insert before this string.
+     * @return A new [AnsiString] containing the given sequence followed by the data of this string.
+     */
     inline infix fun String.with(sequence: AnsiSequence): AnsiString = AnsiString("$sequence$this")
 
-    inline infix fun String.withBg(color: AnsiBg): AnsiString = AnsiString("${AnsiMod.default(color)}$this")
-
-    inline infix fun String.withFg(color: AnsiFg): AnsiString = AnsiString("${AnsiMod.default(color)}$this")
-
-    inline infix fun String.withBoldFg(color: AnsiFg): AnsiString = AnsiString("${AnsiMod.bold(color)}$this")
-
-    inline infix fun String.withItalicFg(color: AnsiFg): AnsiString = AnsiString("${AnsiMod.bold(color)}$this")
-
+    /**
+     * Insert a reset ANSI escape code after this string and return
+     * the newly created string as an [AnsiString].
+     *
+     * @return A new [AnsiString] containing the data of this string followed by a reset escape code.
+     */
     inline fun String.reset(): AnsiString = AnsiString("$this${AnsiSequence.reset}")
 }
