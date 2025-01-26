@@ -32,3 +32,4 @@ dependencyResolutionManagement {
 }
 
 include("skroll")
+include("skroll-ktor")

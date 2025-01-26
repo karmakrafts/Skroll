@@ -16,6 +16,10 @@
 
 package io.karma.skroll
 
+inline fun Logger.trace(throwable: Throwable?, marker: LogMarker? = null, crossinline message: AnsiScope.() -> Any) {
+    trace(marker) { "${message()}: ${throwable?.stackTraceToString() ?: "Stacktrace unavailable"}" }
+}
+
 inline fun Logger.debug(throwable: Throwable?, marker: LogMarker? = null, crossinline message: AnsiScope.() -> Any) {
     debug(marker) { "${message()}: ${throwable?.stackTraceToString() ?: "Stacktrace unavailable"}" }
 }
