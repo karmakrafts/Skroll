@@ -1,5 +1,5 @@
 [versions]
-skroll = "1.1.2"
+skroll = "1.1.3"
 
 kotlin = "2.1.0" # https://github.com/JetBrains/kotlin/releases
 kotlinxIo = "0.6.0" # https://github.com/Kotlin/kotlinx-io/releases
