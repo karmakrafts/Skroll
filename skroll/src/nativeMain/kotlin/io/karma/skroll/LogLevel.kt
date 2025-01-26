@@ -20,6 +20,10 @@ package io.karma.skroll
 
 import kotlin.experimental.ExperimentalNativeApi
 
+/**
+ * The log level designates the importance of a logged message in
+ * ascending order.
+ */
 enum class LogLevel( // @formatter:off
     val symbol: String,
     val ansi: AnsiSequence
@@ -33,6 +37,13 @@ enum class LogLevel( // @formatter:off
     // @formatter:on
 
     companion object {
+        /**
+         * The default log level is determined by [Platform.isDebugBinary];
+         * When the application is linked as a debug build, [LogLevel.DEBUG]
+         * will be returned, otherwise [LogLevel.INFO] is returned.
+         *
+         * @return [LogLevel.DEBUG] if [Platform.isDebugBinary] is true, [LogLevel.INFO] otherwise.
+         */
         @OptIn(ExperimentalNativeApi::class)
         inline fun default(): LogLevel = if (Platform.isDebugBinary) DEBUG else INFO
     }
