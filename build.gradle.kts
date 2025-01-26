@@ -16,6 +16,7 @@
 
 plugins {
     alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
 }
 
 group = "io.karma.skroll"

@@ -51,7 +51,7 @@ kotlin {
 dokka {
     moduleName = project.name
     dokkaSourceSets {
-        val nativeMain by creating {
+        val nativeMain by getting {
             sourceRoots.from(kotlin.sourceSets.getByName("nativeMain").kotlin.srcDirs)
         }
     }
@@ -71,6 +71,7 @@ val dokkaJar by tasks.registering(Jar::class) {
 tasks {
     System.getProperty("publishDocs.root")?.let { docsDir ->
         register("publishDocs", Copy::class) {
+            dependsOn(dokkaJar)
             mustRunAfter(dokkaJar)
             from(zipTree(dokkaJar.get().outputs.files.first()))
             into(docsDir)
