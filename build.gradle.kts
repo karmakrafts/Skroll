@@ -29,6 +29,6 @@ allprojects {
         mavenLocal()
         mavenCentral()
         google()
-        packageRegistry(gitlab().project("kk/multiplatform-pthread"))
+        maven("https://maven.karmakrafts.dev/maven")
     }
 }

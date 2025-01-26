@@ -10,7 +10,19 @@ Skroll is a lightweight logging framework for Kotlin/Native that offers the foll
 
 ### How to use it
 
-Using Skroll is as simple as setting the default log configuration and creating a logger afterwards:
+First of all, you need to add the dependency to your Gradle buildscript:
+
+```kotlin
+repositories {
+    maven("https://maven.karmakrafts.dev/maven")
+}
+
+dependencies {
+    implementation("io.karma.skroll:skroll:<version>")
+}
+```
+
+Using the Skroll API is as simple as setting the default log configuration and creating a logger afterwards:
 
 ```kotlin
 init {
