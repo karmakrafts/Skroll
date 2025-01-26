@@ -50,6 +50,11 @@ kotlin {
 
 dokka {
     moduleName = project.name
+    dokkaSourceSets {
+        val nativeMain by creating {
+            sourceRoots.from(kotlin.sourceSets.getByName("nativeMain").kotlin.srcDirs)
+        }
+    }
     pluginsConfiguration {
         html {
             footerMessage = "(c) 2025 Karma Krafts & associates"
