@@ -38,6 +38,7 @@ kotlin {
             dependencies {
                 api(libs.kotlinx.io.core)
                 api(libs.kotlinx.io.bytestring)
+                implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.atomicfu)
                 implementation(libs.multiplatform.pthread)

@@ -18,10 +18,11 @@ package io.karma.skroll
 
 import co.touchlab.stately.collections.SharedHashMap
 import co.touchlab.stately.collections.SharedSet
-import io.karma.pthread.Mutex
-import io.karma.pthread.guarded
+import io.kotest.common.runBlocking
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.staticCFunction
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.io.Sink
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
@@ -63,21 +64,18 @@ internal class ConsoleAppender( // @formatter:off
         LogAppender.appenders += this
     }
 
-    private var isClosed: Boolean = false
-    private val mutex: Mutex = Mutex.create()
+    private val mutex: Mutex = Mutex()
 
     override fun append(level: LogLevel, message: String, marker: LogMarker?) {
         if (!filter(level, message, marker)) return
-        mutex.guarded {
-            println(message)
+        runBlocking {
+            mutex.withLock {
+                println(message)
+            }
         }
     }
 
-    override fun close() {
-        if (isClosed) return
-        mutex.close()
-        isClosed = true
-    }
+    override fun close() {}
 }
 
 private data class RefCountedSink(
@@ -122,13 +120,15 @@ internal class FileAppender( // @formatter:off
     }.acquire().sink
 
     private var isClosed: Boolean = false
-    private val mutex: Mutex = Mutex.create()
+    private val mutex: Mutex = Mutex()
 
     override fun append(level: LogLevel, message: String, marker: LogMarker?) {
         if (!filter(level, message, marker)) return
         // Make sure to strip out any ANSI codes when writing to file
-        mutex.guarded {
-            sink.writeString("${message.toAnsi().cleanString()}\n")
+        runBlocking {
+            mutex.withLock {
+                sink.writeString("${message.toAnsi().cleanString()}\n")
+            }
         }
     }
 
@@ -138,7 +138,6 @@ internal class FileAppender( // @formatter:off
         ref.release {
             sinks -= path
         }
-        mutex.close()
         isClosed = true
     }
 }

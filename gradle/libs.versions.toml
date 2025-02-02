@@ -1,14 +1,14 @@
 [versions]
-skroll = "1.2.1"
+skroll = "1.2.2"
 
 kotlin = "2.1.0" # https://github.com/JetBrains/kotlin/releases
 kotlinxIo = "0.6.0" # https://github.com/Kotlin/kotlinx-io/releases
 kotlinxDateTime = "0.6.1" # https://github.com/Kotlin/kotlinx-datetime/releases
-kotlinxAtomicfu = "0.27.0" # https://github.com/Kotlin/kotlinx-atomicfu/releases/tag/0.27.0
+kotlinxAtomicfu = "0.27.0" # https://github.com/Kotlin/kotlinx-atomicfu/releases
+kotlinxCoroutines = "1.10.1" # https://github.com/Kotlin/kotlinx.coroutines/releases
 ktor = "3.0.3" # https://github.com/ktorio/ktor/releases
 multiplatformPthread = "1.0.2.11" # https://git.karmakrafts.dev/kk/multiplatform-pthread/-/releases
 stately = "2.1.0" # https://github.com/touchlab/Stately/releases
-kotest = "6.0.0.M1" # https://github.com/kotest/kotest/releases
 dokka = "2.0.0" # https://github.com/Kotlin/dokka/releases
 
 [libraries]
@@ -16,13 +16,12 @@ kotlinx-io-bytestring = { module = "org.jetbrains.kotlinx:kotlinx-io-bytestring"
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDateTime" }
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "kotlinxAtomicfu" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 stately-common = { module = "co.touchlab:stately-common", version.ref = "stately" }
 stately-collections = { module = "co.touchlab:stately-collections", version.ref = "stately" }
 multiplatform-pthread = { module = "io.karma.pthread:multiplatform-pthread", version.ref = "multiplatformPthread" }
-kotest-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
