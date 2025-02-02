@@ -30,6 +30,6 @@ allprojects {
         mavenLocal()
         mavenCentral()
         google()
-        maven("https://maven.karmakrafts.dev/maven")
+        maven("https://files.karmakrafts.dev/maven")
     }
 }
