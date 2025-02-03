@@ -14,7 +14,7 @@ First of all, you need to add the dependency to your Gradle buildscript:
 
 ```kotlin
 repositories {
-    maven("https://maven.karmakrafts.dev/maven")
+    maven("https://files.karmakrafts.dev/maven")
 }
 
 dependencies {
