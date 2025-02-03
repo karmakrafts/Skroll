@@ -34,7 +34,6 @@ variables:
 
 .if-not-nobuild: &if-not-nobuild
   - if: '$CI_COMMIT_MESSAGE =~ /^\(nobuild\)/'
-  - if: $CI_PIPELINE_SOURCE == "schedule"
     when: never
 
 # ------------------------------ Security
