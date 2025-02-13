@@ -35,7 +35,7 @@ sealed interface Logger {
 
         @PublishedApi
         internal fun LoggerConfigBuilder.buildDefaultConfig() {
-            consoleAppender(
+            platformConsoleAppender(
                 "{{levelColor}}>>  {{levelSymbol}}\t{{datetime(hh:mm:ss.SSS)}} ({{name}} @ {{thread}}) {{message}}{{r}}"
             )
             fileAppender(
@@ -67,7 +67,7 @@ sealed interface Logger {
          * @param config The configuration spec applied to the newly created logger instance. See [LoggerConfigBuilder].
          * @return A new logger instance with the given name.
          */
-        inline fun create(name: String, config: LoggerConfigSpec = {}): Logger {
+        inline operator fun invoke(name: String, config: LoggerConfigSpec = {}): Logger {
             return SimpleLogger(name, LoggerConfigBuilder().setFrom(defaultConfig).apply(config).build())
         }
 
@@ -79,7 +79,7 @@ sealed interface Logger {
          * @param config The configuration spec applied to the newly created logger instance. See [LoggerConfigBuilder].
          * @return A new logger instance owned by the given class.
          */
-        inline fun create(clazz: KClass<*>, config: LoggerConfigSpec = {}): Logger {
+        inline operator fun invoke(clazz: KClass<*>, config: LoggerConfigSpec = {}): Logger {
             val nameParts = requireNotNull(clazz.qualifiedName) { "Could not retrieve qualified class name" }.split('.')
             var name = ""
             for (i in nameParts.indices) {
@@ -91,7 +91,7 @@ sealed interface Logger {
                 name += if (part.length > 2) part.substring(0..<2) else part
                 if (i < nameParts.lastIndex) name += '.'
             }
-            return create(name, config)
+            return this(name, config)
         }
     }
 
@@ -290,7 +290,7 @@ internal class SimpleLogger( // @formatter:off
         val messageContent = message(AnsiScope)
         for (appender in config.appenders) {
             appender.append(
-                level, appender.formatter.transform(this, level, messageContent, null, appender.pattern), null
+                this, level, appender.formatter.transform(this, level, messageContent, null, appender.pattern), null
             )
         }
     }
@@ -300,7 +300,7 @@ internal class SimpleLogger( // @formatter:off
         val messageContent = message(AnsiScope)
         for (appender in config.appenders) {
             appender.append(
-                level, appender.formatter.transform(this, level, messageContent, marker, appender.pattern), marker
+                this, level, appender.formatter.transform(this, level, messageContent, marker, appender.pattern), marker
             )
         }
     }

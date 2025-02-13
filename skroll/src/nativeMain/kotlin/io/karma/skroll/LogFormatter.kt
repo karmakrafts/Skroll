@@ -36,6 +36,8 @@ private typealias DateTimeElement = Pair<String, DateTimeFormatBuilder.WithDateT
 @Suppress("NOTHING_TO_INLINE")
 fun interface LogPatternElement {
     companion object {
+        val identity: LogPatternElement = LogPatternElement { _, _, _, _, s -> s }
+
         private val maxLevelNameLength: Int = LogLevel.entries //
             .maxOf { it.name.length }
 
@@ -157,7 +159,12 @@ value class LogFormatter @PublishedApi internal constructor(@PublishedApi intern
         /**
          * The default formatter which provides all basic format elements like {{name}} and {{thread}}.
          */
-        val default: LogFormatter = LogFormatter(LogPatternElement.rootElement)
+        val default: LogFormatter = LogPatternElement.rootElement.asFormatter()
+
+        /**
+         * A plain formatter which just forwards the raw message as defined by [LogPatternElement.identity].
+         */
+        val plain: LogFormatter = LogPatternElement.identity.asFormatter()
     }
 
     /**

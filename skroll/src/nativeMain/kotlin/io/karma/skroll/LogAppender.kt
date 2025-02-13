@@ -51,7 +51,8 @@ interface LogAppender : AutoCloseable {
 
     val formatter: LogFormatter
     val pattern: String
-    fun append(level: LogLevel, message: String, marker: LogMarker?)
+
+    fun append(logger: Logger, level: LogLevel, message: String, marker: LogMarker?)
 }
 
 @PublishedApi
@@ -66,7 +67,7 @@ internal class ConsoleAppender( // @formatter:off
 
     private val mutex: Mutex = Mutex()
 
-    override fun append(level: LogLevel, message: String, marker: LogMarker?) {
+    override fun append(logger: Logger, level: LogLevel, message: String, marker: LogMarker?) {
         if (!filter(level, message, marker)) return
         runBlocking {
             mutex.withLock {
@@ -122,7 +123,7 @@ internal class FileAppender( // @formatter:off
     private var isClosed: Boolean = false
     private val mutex: Mutex = Mutex()
 
-    override fun append(level: LogLevel, message: String, marker: LogMarker?) {
+    override fun append(logger: Logger, level: LogLevel, message: String, marker: LogMarker?) {
         if (!filter(level, message, marker)) return
         // Make sure to strip out any ANSI codes when writing to file
         runBlocking {

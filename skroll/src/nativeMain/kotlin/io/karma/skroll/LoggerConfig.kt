@@ -110,3 +110,18 @@ class LoggerConfigBuilder @PublishedApi internal constructor() {
 }
 
 typealias LoggerConfigSpec = LoggerConfigBuilder.() -> Unit
+
+/**
+ * Adds a new platform console appender to this logger config.
+ * This will automatically use the appropriate console appender for the
+ * underlying platform instead of raw stdio if available.
+ *
+ * @param pattern The formatting pattern to apply to all messages passed to the new appender.
+ * @param formatter The formatter used to apply the specified pattern to each message. See [LogFormatter].
+ * @param filter The filter to apply for every message to determine whether it should be logged.
+ */
+expect fun LoggerConfigBuilder.platformConsoleAppender( // @formatter:off
+    pattern: String,
+    formatter: LogFormatter = LogFormatter.default,
+    filter: LogFilter = LogFilter.always
+) // @formatter:on

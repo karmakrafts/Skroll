@@ -5,8 +5,23 @@ Skroll is a lightweight logging framework for Kotlin/Native that offers the foll
 * Markers
 * Filters
 * Levels
-* Thread support
 * Formatters
+* Thread support (through [Multiplatform mman](https://git.karmakrafts.dev/kk/multiplatform-mman))
+* Logcat support on Android
+* ULS support on macOS and iOS
+
+### Platform support
+
+* Windows x64
+* Linux x64
+* Linux arm64
+* macOS x64
+* macOS arm64
+* iOS x64
+* iOS arm64
+* Android Native x64
+* Android Native arm64
+* Android Native arm32
 
 ### How to use it
 
@@ -26,12 +41,12 @@ Using the Skroll API is as simple as setting the default log configuration and c
 
 ```kotlin
 init {
-    Logger.setDefaultConfig() // Console logging, latest and debug log files
+    Logger.setDefaultConfig() // Platform console logging, latest and debug log files
 }
 
-val logger: Logger = Logger.create("My logger")
+val logger: Logger = Logger("My logger")
 
 class MyClass {
-    val logger: Logger = Logger.create(this::class)
+    val logger: Logger = Logger(this::class)
 }
 ```
