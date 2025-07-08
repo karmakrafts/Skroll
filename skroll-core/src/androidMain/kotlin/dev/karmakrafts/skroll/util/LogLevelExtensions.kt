@@ -14,30 +14,16 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.karmakrafts.skroll.util
 
-rootProject.name = "skroll"
+import android.util.Log
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        gradlePluginPortal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
+val LogLevel.logcatLevel: Int
+    get() = when(this) {
+        LogLevel.TRACE -> Log.VERBOSE
+        LogLevel.DEBUG -> Log.DEBUG
+        LogLevel.INFO -> Log.INFO
+        LogLevel.WARN -> Log.WARN
+        LogLevel.ERROR -> Log.ERROR
+        LogLevel.FATAL -> Log.ASSERT
     }
-}
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
-}
-
-include("skroll-api")
-include("skroll-core")
-include("skroll-ktor")

@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.karmakrafts.skroll.util
 
-rootProject.name = "skroll"
+import dev.karmakrafts.skroll.LogLevel
+import platform.windows.EVENTLOG_ERROR_TYPE
+import platform.windows.EVENTLOG_INFORMATION_TYPE
+import platform.windows.EVENTLOG_WARNING_TYPE
+import platform.windows.WORD
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        gradlePluginPortal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
-}
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
-}
-
-include("skroll-api")
-include("skroll-core")
-include("skroll-ktor")
+val LogLevel.eventType: WORD
+    get() = when (this) {
+        LogLevel.TRACE, LogLevel.DEBUG, LogLevel.INFO -> EVENTLOG_INFORMATION_TYPE
+        LogLevel.WARN -> EVENTLOG_WARNING_TYPE
+        LogLevel.ERROR, LogLevel.FATAL -> EVENTLOG_ERROR_TYPE
+    }.toUShort()

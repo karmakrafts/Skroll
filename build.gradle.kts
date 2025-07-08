@@ -14,22 +14,45 @@
  * limitations under the License.
  */
 
+import dev.karmakrafts.conventions.GitLabCI
+import dev.karmakrafts.conventions.apache2License
+import dev.karmakrafts.conventions.authenticatedSonatype
+import dev.karmakrafts.conventions.defaultDependencyLocking
+import dev.karmakrafts.conventions.setRepository
+import dev.karmakrafts.conventions.signPublications
+
 plugins {
     alias(libs.plugins.dokka) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.karmaConventions)
+    signing
+    `maven-publish`
+    alias(libs.plugins.gradleNexus)
 }
 
-group = "io.karma.skroll"
-version = CI.getDefaultVersion(libs.versions.skroll)
+group = "dev.karmakrafts.skroll"
+version = GitLabCI.getDefaultVersion(libs.versions.skroll)
 
-allprojects {
+subprojects {
+    apply<MavenPublishPlugin>()
+    apply<SigningPlugin>()
+
     group = rootProject.group
     version = rootProject.version
+    if (GitLabCI.isCI) defaultDependencyLocking()
 
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-        maven("https://files.karmakrafts.dev/maven")
+    publishing {
+        apache2License()
+        setRepository("github.com", "karmakrafts/Skroll")
+        with(GitLabCI) { karmaKraftsDefaults() }
     }
+
+    signing {
+        signPublications()
+    }
+}
+
+nexusPublishing {
+    authenticatedSonatype()
 }

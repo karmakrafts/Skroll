@@ -14,30 +14,19 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.karmakrafts.skroll.util
 
-rootProject.name = "skroll"
+import dev.karmakrafts.skroll.LogLevel
+import platform.darwin.OS_LOG_TYPE_DEBUG
+import platform.darwin.OS_LOG_TYPE_ERROR
+import platform.darwin.OS_LOG_TYPE_FAULT
+import platform.darwin.OS_LOG_TYPE_INFO
+import platform.darwin.os_log_type_t
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        gradlePluginPortal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
+val LogLevel.osLogType: os_log_type_t
+    get() = when (this) {
+        LogLevel.DEBUG, LogLevel.TRACE -> OS_LOG_TYPE_DEBUG
+        LogLevel.INFO, LogLevel.WARN -> OS_LOG_TYPE_INFO
+        LogLevel.ERROR -> OS_LOG_TYPE_ERROR
+        LogLevel.FATAL -> OS_LOG_TYPE_FAULT
     }
-}
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
-}
-
-include("skroll-api")
-include("skroll-core")
-include("skroll-ktor")

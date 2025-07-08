@@ -1,52 +1,52 @@
 # Skroll
 
-Skroll is a lightweight logging framework for Kotlin/Native that offers the following main features:
+[![](https://git.karmakrafts.dev/kk/skroll/badges/master/pipeline.svg)](https://git.karmakrafts.dev/kk/skroll/-/pipelines)
+[![](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.maven.apache.org%2Fmaven2%2Fdev%2Fkarmakrafts%2Fskroll%2Fskroll-core%2Fmaven-metadata.xml
+)](https://git.karmakrafts.dev/kk/introspekt/-/packages)
+[![](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fdev%2Fkarmakrafts%2Fskroll%2Fskroll-core%2Fmaven-metadata.xml
+)](https://git.karmakrafts.dev/kk/skroll/-/packages)
+
+Skroll is a lightweight logging framework for Kotlin/Multiplatform that offers the following main features:
+
+* Standalone API/facade
 * Appenders
 * Markers
 * Filters
 * Levels
 * Formatters
-* Thread support (through [Multiplatform mman](https://git.karmakrafts.dev/kk/multiplatform-mman))
-* Logcat support on Android
+* Logcat support on Android & Android Native
 * ULS support on macOS and iOS
-
-### Platform support
-
-* Windows x64
-* Linux x64
-* Linux arm64
-* macOS x64
-* macOS arm64
-* iOS x64
-* iOS arm64
-* Android Native x64
-* Android Native arm64
-* Android Native arm32
+* Event Log support on Windows
 
 ### How to use it
 
-First of all, you need to add the dependency to your Gradle buildscript:
+First, add the official Karma Krafts maven repository to your `settings.gradle.kts`:
 
 ```kotlin
-repositories {
-    maven("https://files.karmakrafts.dev/maven")
+pluginManagement {
+    repositories {
+        maven("https://central.sonatype.com/repository/maven-snapshots")
+        mavenCentral()
+    }
 }
 
-dependencies {
-    implementation("io.karma.skroll:skroll:<version>")
+dependencyResolutionManagement {
+    repositories {
+        maven("https://central.sonatype.com/repository/maven-snapshots")
+        mavenCentral()
+    }
 }
 ```
 
-Using the Skroll API is as simple as setting the default log configuration and creating a logger afterwards:
+Then add a dependency on the library in your buildscript:
 
 ```kotlin
-init {
-    Logger.setDefaultConfig() // Platform console logging, latest and debug log files
-}
-
-val logger: Logger = Logger("My logger")
-
-class MyClass {
-    val logger: Logger = Logger(this::class)
+kotlin {
+    commonMain {
+        dependencies {
+            implementation("dev.karmakrafts.skroll:skroll-api:<version>")
+            implementation("dev.karmakrafts.skroll:skroll-core:<version>")
+        }
+    }
 }
 ```

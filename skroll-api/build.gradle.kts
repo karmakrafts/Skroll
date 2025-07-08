@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import dev.karmakrafts.conventions.configureJava
 import dev.karmakrafts.conventions.setProjectInfo
+import java.time.ZonedDateTime
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.dokka)
 }
-
-configureJava(rootProject.libs.versions.java)
 
 kotlin {
     mingwX64()
@@ -52,9 +50,23 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.skrollApi)
-                api(libs.ktor.server.core)
+                api(libs.kotlinx.io.core)
+                api(libs.kotlinx.io.bytestring)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.filament.core)
+                implementation(libs.stately.common)
+                implementation(libs.stately.collections)
             }
+        }
+    }
+}
+
+dokka {
+    moduleName = project.name
+    pluginsConfiguration {
+        html {
+            footerMessage = "(c) ${ZonedDateTime.now().year} Karma Krafts & associates"
         }
     }
 }
@@ -67,6 +79,23 @@ android {
     }
 }
 
+val dokkaJar by tasks.registering(Jar::class) {
+    dependsOn(tasks.dokkaGeneratePublicationHtml)
+    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+    archiveClassifier.set("javadoc")
+}
+
+tasks {
+    System.getProperty("publishDocs.root")?.let { docsDir ->
+        register("publishDocs", Copy::class) {
+            dependsOn(dokkaJar)
+            mustRunAfter(dokkaJar)
+            from(zipTree(dokkaJar.get().outputs.files.first()))
+            into(docsDir)
+        }
+    }
+}
+
 publishing {
-    setProjectInfo("Skroll Ktor", "Ktor integration for the Skroll logging API")
+    setProjectInfo("Skroll API", "Lightweight logging API for Kotlin/Multiplatform")
 }

@@ -14,30 +14,13 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.karmakrafts.skroll.backend
 
-rootProject.name = "skroll"
+import dev.karmakrafts.skroll.LogLevel
+import kotlin.experimental.ExperimentalNativeApi
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        gradlePluginPortal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
+@OptIn(ExperimentalNativeApi::class)
+@PublishedApi
+internal actual fun getDefaultLogLevel(): LogLevel {
+    return if(Platform.isDebugBinary) LogLevel.DEBUG else LogLevel.INFO
 }
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
-}
-
-include("skroll-api")
-include("skroll-core")
-include("skroll-ktor")

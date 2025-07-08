@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+package dev.karmakrafts.skroll.backend
 
-rootProject.name = "skroll"
+import dev.karmakrafts.skroll.appender.LogAppender
+import dev.karmakrafts.skroll.appender.LogFilter
+import dev.karmakrafts.skroll.appender.OsLogAppender
+import dev.karmakrafts.skroll.format.LogFormatter
 
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        gradlePluginPortal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
+internal actual fun createSystemLogAppender( // @formatter:off
+    pattern: String,
+    formatter: LogFormatter,
+    filter: LogFilter
+): LogAppender { // @formatter:on
+    return OsLogAppender(pattern, formatter, filter)
 }
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-        maven("https://central.sonatype.com/repository/maven-snapshots")
-    }
-}
-
-include("skroll-api")
-include("skroll-core")
-include("skroll-ktor")
